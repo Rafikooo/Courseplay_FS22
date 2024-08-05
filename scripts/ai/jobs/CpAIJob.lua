@@ -22,6 +22,7 @@ CpAIJob = {
 local AIJobCp_mt = Class(CpAIJob, AIJob)
 
 function CpAIJob.new(isServer, customMt)
+    CpUtil.info('[DEBUG] Base class comment - run on the gameplay start')
 	local self = AIJob.new(isServer, customMt or AIJobCp_mt)
 	self.isDirectStart = false
 	self.debugChannel = CpDebug.DBG_FIELDWORK
@@ -39,7 +40,7 @@ end
 function CpAIJob:removeTask(task)
 	if task.taskIndex then
 		table.remove(self.tasks, task.taskIndex)
-		for i = #self.tasks, task.taskIndex, -1 do 
+		for i = #self.tasks, task.taskIndex, -1 do
 			self.tasks[i].taskIndex = self.tasks[i].taskIndex - 1
 		end
 	end
@@ -76,7 +77,7 @@ function CpAIJob:getStartTaskIndex()
 		-- TODO: this isn't very nice as we rely here on the derived classes to add more tasks
 		return 2
 	end
-	if self.driveToTask.x == nil then 
+	if self.driveToTask.x == nil then
 		CpUtil.info("Drive to task was skipped, as no valid start position is set!")
 		return 2
 	end
@@ -84,7 +85,7 @@ function CpAIJob:getStartTaskIndex()
 end
 
 function CpAIJob:getNextTaskIndex()
-	if self:getIsLooping() and self.currentTaskIndex >= #self.tasks then 
+	if self:getIsLooping() and self.currentTaskIndex >= #self.tasks then
 		--- Makes sure the giants task is skipped
 		return self:getStartTaskIndex()
 	end
@@ -93,13 +94,13 @@ end
 
 --- Should the giants path finder job be skipped?
 function CpAIJob:isTargetReached()
-	if not self.cpJobParameters or not self.cpJobParameters.startPosition then 
+	if not self.cpJobParameters or not self.cpJobParameters.startPosition then
 		return true
 	end
 	local vehicle = self.vehicleParameter:getVehicle()
 	local x, _, z = getWorldTranslation(vehicle.rootNode)
 	local tx, tz = self.cpJobParameters.startPosition:getPosition()
-	if tx == nil or tz == nil then 
+	if tx == nil or tz == nil then
 		return true
 	end
 	local targetReached = MathUtil.vector2Length(x - tx, z - tz) < 3
@@ -124,7 +125,7 @@ function CpAIJob:start(farmId)
 end
 
 function CpAIJob:stop(aiMessage)
-	if not self.isServer then 
+	if not self.isServer then
 		CpAIJob:superClass().stop(self, aiMessage)
 		return
 	end
@@ -133,7 +134,7 @@ function CpAIJob:stop(aiMessage)
 	vehicle:aiJobFinished()
 	vehicle:resetCpAllActiveInfoTexts()
 	local driveStrategy = vehicle:getCpDriveStrategy()
-	if not aiMessage then 
+	if not aiMessage then
 		self:debug("No valid ai message given!")
 		if driveStrategy then
 			driveStrategy:onFinished()
@@ -141,9 +142,9 @@ function CpAIJob:stop(aiMessage)
 		CpAIJob:superClass().stop(self, aiMessage)
 		return
 	end
-	local releaseMessage, hasFinished, event, isOnlyShownOnPlayerStart = 
+	local releaseMessage, hasFinished, event, isOnlyShownOnPlayerStart =
 		g_infoTextManager:getInfoTextDataByAIMessage(aiMessage)
-	if releaseMessage then 
+	if releaseMessage then
 		self:debug("Stopped with release message %s", tostring(releaseMessage))
 	end
 	if releaseMessage and not vehicle:getIsControlled() and not isOnlyShownOnPlayerStart then
@@ -164,10 +165,10 @@ end
 function CpAIJob:applyCurrentState(vehicle, mission, farmId, isDirectStart)
 	CpAIJob:superClass().applyCurrentState(self, vehicle, mission, farmId, isDirectStart)
 	self.vehicleParameter:setVehicle(vehicle)
-	if not self.cpJobParameters or not self.cpJobParameters.startPosition then 
+	if not self.cpJobParameters or not self.cpJobParameters.startPosition then
 		return
 	end
-	if not vehicle then 
+	if not vehicle then
 		CpUtil.error("Vehicle is null!")
 		return
 	end
@@ -188,7 +189,7 @@ function CpAIJob:applyCurrentState(vehicle, mission, farmId, isDirectStart)
 		local dirX, _, dirZ = localDirectionToWorld(vehicle.rootNode, 0, 0, 1)
 		angle = MathUtil.getYRotationFromDirection(dirX, dirZ)
 	end
-	
+
 	self.cpJobParameters.startPosition:setPosition(x, z)
 	self.cpJobParameters.startPosition:setAngle(angle)
 
@@ -273,7 +274,7 @@ function CpAIJob.getIsStartErrorText(state)
 end
 
 function CpAIJob:draw(map, isOverviewMap)
-	
+
 end
 
 
@@ -294,10 +295,10 @@ function CpAIJob:writeStream(streamId, connection)
 		self.cpJobParameters:writeStream(streamId, connection)
 	end
 
-	if self.fieldPolygon then 
+	if self.fieldPolygon then
 		streamWriteBool(streamId, true)
 		CustomField.writeStreamVertices(self.fieldPolygon, streamId, connection)
-	else 
+	else
 		streamWriteBool(streamId, false)
 	end
 end
@@ -318,7 +319,7 @@ function CpAIJob:readStream(streamId, connection)
 		self.cpJobParameters:validateSettings()
 		self.cpJobParameters:readStream(streamId, connection)
 	end
-	if streamReadBool(streamId) then 
+	if streamReadBool(streamId) then
 		self.fieldPolygon = CustomField.readStreamVertices(streamId, connection)
 	end
 	if not self:getIsHudJob() then
@@ -363,7 +364,7 @@ function CpAIJob:copyFrom(job)
 	self.cpJobParameters:copyFrom(job.cpJobParameters)
 end
 
---- Applies the global wage modifier. 
+--- Applies the global wage modifier.
 function CpAIJob:getPricePerMs()
 	local modifier = g_Courseplay.globalSettings:getSettings().wageModifier:getValue()/100
 	return CpAIJob:superClass().getPricePerMs(self) * modifier
@@ -371,7 +372,7 @@ end
 
 --- Fix for precision farming ...
 function CpAIJob.getPricePerMs_FixPrecisionFarming(vehicle, superFunc, ...)
-	if vehicle then 
+	if vehicle then
 		return superFunc(vehicle, ...)
 	end
 	--- Only if the vehicle/self of AIJobFieldWork:getPricePerMs() us nil,
@@ -386,13 +387,13 @@ AIJobFieldWork.getPricePerMs = Utils.overwrittenFunction(AIJobFieldWork.getPrice
 
 --- Fruit Destruction
 local function updateWheelDestructionAdjustment(vehicle, superFunc, ...)
-	if g_Courseplay.globalSettings.fruitDestruction:getValue() == g_Courseplay.globalSettings.AI_FRUIT_DESTRUCTION_OFF then 
+	if g_Courseplay.globalSettings.fruitDestruction:getValue() == g_Courseplay.globalSettings.AI_FRUIT_DESTRUCTION_OFF then
 		--- AI Fruit destruction is disabled.
 		superFunc(vehicle, ...)
 		return
 	end
-	if g_Courseplay.globalSettings.fruitDestruction:getValue() == g_Courseplay.globalSettings.AI_FRUIT_DESTRUCTION_ONLY_CP 
-		and (not vehicle.rootVehicle.getIsCpActive or not vehicle.rootVehicle:getIsCpActive()) then 
+	if g_Courseplay.globalSettings.fruitDestruction:getValue() == g_Courseplay.globalSettings.AI_FRUIT_DESTRUCTION_ONLY_CP
+		and (not vehicle.rootVehicle.getIsCpActive or not vehicle.rootVehicle:getIsCpActive()) then
 		--- AI Fruit destruction is disabled for other helpers than CP.
 		superFunc(vehicle, ...)
 		return
@@ -416,7 +417,7 @@ end
 function CpAIJob:setVehicle(v, isHudJob)
 	self.vehicle = v
 	self.isHudJob = isHudJob
-	if self.cpJobParameters then 
+	if self.cpJobParameters then
 		self.cpJobParameters:validateSettings()
 	end
 end
@@ -426,19 +427,19 @@ function CpAIJob:getIsHudJob()
 end
 
 function CpAIJob:showNotification(aiMessage)
-	if g_Courseplay.globalSettings.infoTextHudActive:getValue() == g_Courseplay.globalSettings.DISABLED then 
+	if g_Courseplay.globalSettings.infoTextHudActive:getValue() == g_Courseplay.globalSettings.DISABLED then
 		CpAIJob:superClass().showNotification(self, aiMessage)
 		return
 	end
 	local releaseMessage, hasFinished, event = g_infoTextManager:getInfoTextDataByAIMessage(aiMessage)
-	if not releaseMessage and not aiMessage:isa(AIMessageSuccessStoppedByUser) then 
+	if not releaseMessage and not aiMessage:isa(AIMessageSuccessStoppedByUser) then
 		self:debug("No release message found, so we use the giants notification!")
 		CpAIJob:superClass().showNotification(self, aiMessage)
 		return
 	end
 	local vehicle = self:getVehicle()
 	--- Makes sure the message is shown, when a player is in the vehicle.
-	if releaseMessage and vehicle:getIsEntered() then 
+	if releaseMessage and vehicle:getIsEntered() then
 		g_currentMission:showBlinkingWarning(releaseMessage:getText(), 5000)
 	end
 end
@@ -449,9 +450,9 @@ end
 
 function CpAIJob:debug(...)
 	local vehicle = self:getVehicle()
-	if vehicle then 
+	if vehicle then
 		CpUtil.debugVehicle(self.debugChannel, vehicle, ...)
-	else 
+	else
 		CpUtil.debugFormat(self.debugChannel, ...)
 	end
 end
@@ -460,8 +461,8 @@ end
 --- Ugly hack to fix a mp problem from giants, where the job class can not be found.
 function CpAIJob.getJobTypeIndex(aiJobTypeManager, superFunc, job)
 	local ret = superFunc(aiJobTypeManager, job)
-	if ret == nil then 
-		if job.name then 
+	if ret == nil then
+		if job.name then
 			return aiJobTypeManager.nameToIndex[job.name]
 		end
 	end

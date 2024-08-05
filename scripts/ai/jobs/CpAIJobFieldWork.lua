@@ -33,8 +33,8 @@ function CpAIJobFieldWork:onPreStart()
     self:removeTask(self.driveToFieldWorkStartTask)
     self:removeTask(self.fieldWorkTask)
     local vehicle = self:getVehicle()
-    if vehicle and (AIUtil.hasCutterOnTrailerAttached(vehicle) 
-        or AIUtil.hasCutterAsTrailerAttached(vehicle)) then 
+    if vehicle and (AIUtil.hasCutterOnTrailerAttached(vehicle)
+        or AIUtil.hasCutterAsTrailerAttached(vehicle)) then
         --- Only add the attach header task, if needed.
         self:addTask(self.attachHeaderTask)
     end
@@ -65,10 +65,10 @@ function CpAIJobFieldWork:applyCurrentState(vehicle, mission, farmId, isDirectSt
     self.cpJobParameters.fieldPosition:setPosition(x, z)
 
     if isStartPositionInvalid then
-        local x, _, z = getWorldTranslation(vehicle.rootNode) 
+        local x, _, z = getWorldTranslation(vehicle.rootNode)
         local dirX, _, dirZ = localDirectionToWorld(vehicle.rootNode, 0, 0, 1)
         local angle = MathUtil.getYRotationFromDirection(dirX, dirZ)
-        
+
         self.cpJobParameters.startPosition:setPosition(x, z)
         self.cpJobParameters.startPosition:setAngle(angle)
 
@@ -84,10 +84,11 @@ function CpAIJobFieldWork:validateFieldSetup(isValid, errorMessage)
     end
 
     local vehicle = self.vehicleParameter:getVehicle()
-
+    CpUtil.info('[DEBUG] This comment can\'t be reloaded on-fly')
+    CpUtil.info('[DEBUG] This comment can\'t be reloaded on-fly - another comment')
     -- everything else is valid, now find the field
     local tx, tz = self.cpJobParameters.fieldPosition:getPosition()
-    if tx == nil or tz == nil then 
+    if tx == nil or tz == nil then
         return false, g_i18n:getText("CP_error_not_on_field")
     end
     self.hasValidPosition = false
