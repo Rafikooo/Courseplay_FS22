@@ -104,7 +104,7 @@ function CpFieldUtil.saveAllFields()
         end
         saveXMLFile(xmlFile);
         delete(xmlFile);
-        
+
         CpUtil.info('Saved all fields to %s', fileName)
     else
         CpUtil.info("Error: field could not be saved to " , g_Courseplay.debugPrintDir);
@@ -142,8 +142,8 @@ function CpFieldUtil.getFieldPolygonAtWorldPosition(x, z)
     local fieldPolygon, isCustomField
     local customField = g_customFieldManager:getCustomField(x, z)
     local fieldNum = CpFieldUtil.getFieldIdAtWorldPosition(x, z)
-    CpUtil.info('Scanning field %d on %s, prefer custom fields %s',
-            fieldNum, g_currentMission.missionInfo.mapTitle, g_Courseplay.globalSettings.preferCustomFields:getValue())
+    CpUtil.info('[DEBUG] Field num: %d', fieldNum)
+    CpUtil.info('[DEBUG] Another comment - here the hot-reload does work')
     local mapField, mapFieldPolygon = g_fieldScanner:findContour(x, z)
 
     if customField and (not mapField or g_Courseplay.globalSettings.preferCustomFields:getValue()) then
